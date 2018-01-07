@@ -14,21 +14,21 @@ using namespace cv;
 using namespace std;
 int main(int argc, char * argv[]) try
 {
-	// Create a simple OpenGL window for rendering:
-	window app(1280, 720, "RealSense Capture Example");
-	// Declare two textures on the GPU, one for color and one for depth
-	texture depth_image, color_image;
+    // Create a simple OpenGL window for rendering:
+    window app(1280, 720, "RealSense Capture Example");
+    // Declare two textures on the GPU, one for color and one for depth
+    texture depth_image, color_image;
 
-	// Declare depth colorizer for pretty visualization of depth data
-	rs2::colorizer color_map;
+    // Declare depth colorizer for pretty visualization of depth data
+    rs2::colorizer color_map;
 
-	// Declare RealSense pipeline, encapsulating the actual device and sensors
-	rs2::pipeline pipe;
+    // Declare RealSense pipeline, encapsulating the actual device and sensors
+    rs2::pipeline pipe;
 	rs2::config cfg;
 	cfg.enable_device_from_file("C:/Users/Nick/Downloads/3.bag");
-	cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, 30);
-	// Start streaming with default recommended configuration
-	pipe.start(cfg);
+	cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16 , 30);
+    // Start streaming with default recommended configuration
+    pipe.start(cfg);
 	Mat ir_gray;
 	//int thresh = 150;
 	RNG rng(12345);
@@ -36,38 +36,38 @@ int main(int argc, char * argv[]) try
 	cv::Mat eroded;
 
 	cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
-	while (app) // Application still alive?
-	{
+    while(app) // Application still alive?
+    {
 		rs2::frameset frames;
 		//for (int i = 0; i < 30; i++)
 		//{
-		//Wait for all configured streams to produce a frame
-		frames = pipe.wait_for_frames();
+			//Wait for all configured streams to produce a frame
+			frames = pipe.wait_for_frames();
 		////}
-		rs2::colorizer color_map;
-		color_map.set_option(RS2_OPTION_COLOR_SCHEME, 3.0);
+			rs2::colorizer color_map;
+			color_map.set_option(RS2_OPTION_COLOR_SCHEME, 3.0);
 		rs2::frame depth = color_map(frames.get_depth_frame());       // Find the color data
 		Mat ir(Size(640, 480), CV_8UC3, (void*)depth.get_data(), Mat::AUTO_STEP);
-		/*	for (int i = 0; i < ir.rows; i++)
-		for (int j = 0; j < ir.cols; j++)
-		if (ir.at<Vec3b>(i, j)[0] > 0 ||
-		ir.at<Vec3b>(i, j)[1] > 0 ||
-		ir.at<Vec3b>(i, j)[2] > 0)
-		{
-		ir.at<Vec3b>(i, j)[0] = 255;
-		ir.at<Vec3b>(i, j)[1] = 255;
-		ir.at<Vec3b>(i, j)[2] = 255;
-		}
-		*/
+	/*	for (int i = 0; i < ir.rows; i++)
+			for (int j = 0; j < ir.cols; j++)
+				if (ir.at<Vec3b>(i, j)[0] > 0 ||
+					ir.at<Vec3b>(i, j)[1] > 0 ||
+					ir.at<Vec3b>(i, j)[2] > 0)
+				{
+					ir.at<Vec3b>(i, j)[0] = 255;
+					ir.at<Vec3b>(i, j)[1] = 255;
+					ir.at<Vec3b>(i, j)[2] = 255;
+				}
+*/
 		// Apply Histogram Equalization
 		//equalizeHist(ir, ir);
 		//applyColorMap(ir, ir, COLORMAP_JET);
-
-		//	cv::threshold(ir, ir, 0, 127, cv::THRESH_BINARY);
+	
+	//	cv::threshold(ir, ir, 0, 127, cv::THRESH_BINARY);
 		cvtColor(ir, ir, COLOR_BGR2GRAY);
 		cv::Mat skel(ir.size(), CV_8UC1, cv::Scalar(0));
-
-
+	
+		
 		bool done;
 		do
 		{
@@ -102,23 +102,23 @@ int main(int argc, char * argv[]) try
 		namedWindow("2", WINDOW_AUTOSIZE);
 		//imshow("1", ir_gray);
 		imshow("2", drawing);
-
-		// Render depth on to the first half of the screen and color on to the second
+		
+        // Render depth on to the first half of the screen and color on to the second
 		//depth_image.render(depth, { 0,               0, app.width() , app.height() });
-		//color_image.render(color, { app.width() / 2, 0, app.width() / 2, app.height() });
-	}
+        //color_image.render(color, { app.width() / 2, 0, app.width() / 2, app.height() });
+    }
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 catch (const rs2::error & e)
 {
-	std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
-	return EXIT_FAILURE;
+    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+    return EXIT_FAILURE;
 }
 catch (const std::exception& e)
 {
-	std::cerr << e.what() << std::endl;
-	return EXIT_FAILURE;
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
 }
 
 
